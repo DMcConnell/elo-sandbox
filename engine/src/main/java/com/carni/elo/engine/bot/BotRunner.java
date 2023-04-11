@@ -1,0 +1,88 @@
+package com.carni.elo.engine.bot;
+
+import lombok.extern.slf4j.Slf4j;
+import org.javacord.api.DiscordApi;
+import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.intent.Intent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@Slf4j
+public class BotRunner implements CommandLineRunner {
+
+    private final String api_token = "xxx";
+
+    @Autowired
+    private BotService botService;
+
+    @Override
+    public void run(String... args) throws Exception {
+        DiscordApi api = new DiscordApiBuilder().addIntents(Intent.MESSAGE_CONTENT).setToken(api_token).login().join();
+
+        api.addMessageCreateListener(event -> {
+            if (event.getMessage().getContent().equalsIgnoreCase("!ping")) {
+                event.getChannel().sendMessage("Pong!");
+            }
+            List<String> commandArgs = parseCommand(event.getMessage().getContent());
+            if (commandArgs.get(0).equals("addPlayer")) {
+                botService.addPlayer(commandArgs.get(1));
+                event.getChannel().sendMessage("Added player: " + commandArgs.get(1));
+            } else if (commandArgs.get(0).equals("listPlayers")) {
+                botService.listPlayers(event.getChannel());
+            } else if (commandArgs.get(0).equals("recordGame")) {
+                botService.recordGame(event.getChannel(), commandArgs.get(1), commandArgs.get(2),
+                        commandArgs.get(3), commandArgs.get(4));
+            } else if (commandArgs.get(0).equals("listGames")) {
+                botService.listGames(event.getChannel());
+            }
+
+        });
+
+        System.out.println("You can invite the bot by using the following url: " + api.createBotInvite());
+    }
+
+    protected List<String> parseCommand(String message) {
+        List<String> args = splitArgs(message.substring(3).trim());
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0; i < args.size(); i++) {
+//            sb.append(i).append("=").append(args.get(i)).append("\t");
+//        }
+//        log.info("Args: " + sb.toString());
+        return args;
+    }
+
+    private List<String> splitArgs(String fullLine) {
+        List<String> argsList = new ArrayList<>();
+        String[] cmds = fullLine.split(" ");
+        for (int i = 0; i < cmds.length; i++) {
+            if (cmds[i].isBlank()) {
+                continue;
+            }
+            if (cmds[i].charAt(0) == '\'') {
+                if (cmds[i].substring(cmds[i].length() - 1).equals("'")) {
+                    argsList.add(cmds[i].substring(1, cmds[i].length() - 1));
+                } else {
+                    String fullArg = cmds[i].substring(1);
+                    for (int j = i + 1; j < cmds.length; j++) {
+                        if (cmds[j].substring(cmds[j].length() - 1).equals("'")) {
+                            fullArg = fullArg + " " + cmds[j].substring(0, cmds[j].length() - 1);
+                            argsList.add(fullArg);
+                            i = j;
+                            break;
+                        } else {
+                            fullArg = fullArg + " " + cmds[j];
+                        }
+                    }
+                }
+            } else {
+                argsList.add(cmds[i]);
+            }
+        }
+        return argsList;
+    }
+}
