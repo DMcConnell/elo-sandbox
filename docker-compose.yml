@@ -1,0 +1,48 @@
+services:
+  postgres:
+    container_name: elo.postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: xxx
+      POSTGRES_PASSWORD: xxx
+      PGDATA: /data/postgres
+    volumes:
+      - elo-engine-postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: elo.pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: xxx
+      PGADMIN_DEFAULT_PASSWORD: xxx
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - elo-engine-pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  elo-engine:
+    container_name: elo.engine
+    image: 192.168.0.9:5000/elo-engine:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - postgres
+    ports:
+      - "9001:9001"
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  elo-engine-postgres:
+  elo-engine-pgadmin:
