@@ -25,6 +25,9 @@ public record PlayerService(PlayerRepository playerRepository) {
         newPlayer.setGamesLost(0);
         newPlayer.setGamesWon(0);
         newPlayer.setGamesPlayed(0);
+        newPlayer.setHighestElo(1000);
+        newPlayer.setCurrentStreak(0);
+        newPlayer.setLongestStreak(0);
         playerRepository.save(newPlayer);
     }
 
@@ -48,6 +51,10 @@ public record PlayerService(PlayerRepository playerRepository) {
         log.info("updatePlayerElo: name: {}, newElo: {}", name, newElo);
         Player player = playerRepository.findByName(name);
         player.setCurrentElo(newElo);
+
+        if (player.getCurrentElo() > player.getHighestElo()) {
+            player.setHighestElo(player.getCurrentElo());
+        }
         playerRepository.save(player);
     }
 
@@ -67,8 +74,14 @@ public record PlayerService(PlayerRepository playerRepository) {
         player.setGamesPlayed(player.getGamesPlayed() + 1);
         if (won) {
             player.setGamesWon(player.getGamesWon() + 1);
+
+            player.setCurrentStreak(player.getCurrentStreak() + 1);
+            if (player.getCurrentStreak() > player.getLongestStreak()) {
+                player.setLongestStreak(player.getCurrentStreak());
+            }
         } else {
             player.setGamesLost(player.getGamesLost() + 1);
+            player.setCurrentStreak(0);
         }
         playerRepository.save(player);
     }

@@ -5,6 +5,7 @@ import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.intent.Intent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +21,16 @@ public class BotRunner implements CommandLineRunner {
     @Autowired
     private BotService botService;
 
+    @Value("${frontend.run-bot}")
+    private boolean runBot;
+
     @Override
     public void run(String... args) throws Exception {
+        if(!runBot) {
+            log.warn("BotRunner: Bot set to not run, exiting");
+            return;
+        }
+
         DiscordApi api = new DiscordApiBuilder().addIntents(Intent.MESSAGE_CONTENT).setToken(api_token).login().join();
 
         api.addMessageCreateListener(event -> {

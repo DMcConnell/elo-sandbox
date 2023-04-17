@@ -1,6 +1,7 @@
 package com.carni.elo.engine.data;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -20,7 +21,15 @@ public class Player {
 
     private int currentElo;
 
+    @ColumnDefault("1000")
+    private int highestElo;
+
     private int gamesPlayed;
     private int gamesWon;
     private int gamesLost;
+
+    @ColumnDefault("0")
+    private int currentStreak;
+    @ColumnDefault("0")
+    private int longestStreak;
 }
