@@ -18,7 +18,7 @@ public record EloEngineController(PlayerService playerService, GameService gameS
 
     @PostMapping("/api/elo/v1/player")
     public void createPlayer(@RequestParam(name = "name") String name) {
-        log.info("createPlayer: name: {}", name);
+        log.info("controller: createPlayer: name: {}", name);
         if (name != null && !name.isBlank()) {
             playerService.createPlayer(name);
         } else {
@@ -28,7 +28,7 @@ public record EloEngineController(PlayerService playerService, GameService gameS
 
     @GetMapping("/api/elo/v1/players")
     public List<Player> getPlayers() {
-        log.info("getPlayers");
+        log.info("controller: getPlayers");
         return playerService.getPlayers();
     }
 
@@ -79,5 +79,19 @@ public record EloEngineController(PlayerService playerService, GameService gameS
     public List<Game> getGames() {
         log.info("getGames");
         return gameService.getGames();
+    }
+
+    @GetMapping("/api/elo/v1/players/ranked")
+    public List<Player> getPlayersRanked(@RequestParam(name = "limit", defaultValue = "5") int limit,
+                                         @RequestParam(name = "type", defaultValue = "elo") String rankingType) {
+        log.info("controller: getPlayersRankedByElo: limit: {}, rankingType: {}", limit, rankingType);
+        if (rankingType.equals("elo")) {
+            return playerService.getPlayersRankedByElo(limit);
+        } else if (rankingType.equals("streak")) {
+            return playerService.getPlayersRankedByStreak(limit);
+        } else {
+            log.info("controller: unrecognized rankingType: {}", rankingType);
+            return null;
+        }
     }
 }

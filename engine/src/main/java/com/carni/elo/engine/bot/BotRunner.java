@@ -38,31 +38,30 @@ public class BotRunner implements CommandLineRunner {
                 event.getChannel().sendMessage("Pong!");
             }
             List<String> commandArgs = parseCommand(event.getMessage().getContent());
-            if (commandArgs.get(0).equals("addPlayer")) {
-                botService.addPlayer(commandArgs.get(1));
-                event.getChannel().sendMessage("Added player: " + commandArgs.get(1));
-            } else if (commandArgs.get(0).equals("listPlayers")) {
-                botService.listPlayers(event.getChannel());
-            } else if (commandArgs.get(0).equals("recordGame")) {
-                botService.recordGame(event.getChannel(), commandArgs.get(1), commandArgs.get(2),
+            switch (commandArgs.get(0)) {
+                case "addPlayer" -> {
+                    botService.addPlayer(commandArgs.get(1));
+                    event.getChannel().sendMessage("Added player: " + commandArgs.get(1));
+                }
+                case "listPlayers" -> botService.listPlayers(event.getChannel());
+                case "recordGame" -> botService.recordGame(event.getChannel(), commandArgs.get(1), commandArgs.get(2),
                         commandArgs.get(3), commandArgs.get(4));
-            } else if (commandArgs.get(0).equals("listGames")) {
-                botService.listGames(event.getChannel());
+                case "listGames" -> botService.listGames(event.getChannel());
+                case "getLeaderboard" -> botService.getLeaderboard(event.getChannel(), commandArgs);
+                default -> event.getChannel().sendMessage("Unknown command: " + commandArgs.get(0));
             }
-
         });
 
         System.out.println("You can invite the bot by using the following url: " + api.createBotInvite());
     }
 
     protected List<String> parseCommand(String message) {
-        List<String> args = splitArgs(message.substring(3).trim());
 //        StringBuilder sb = new StringBuilder();
 //        for (int i = 0; i < args.size(); i++) {
 //            sb.append(i).append("=").append(args.get(i)).append("\t");
 //        }
 //        log.info("Args: " + sb.toString());
-        return args;
+        return splitArgs(message.substring(3).trim());
     }
 
     private List<String> splitArgs(String fullLine) {

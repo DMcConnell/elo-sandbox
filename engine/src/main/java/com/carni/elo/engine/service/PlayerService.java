@@ -85,4 +85,14 @@ public record PlayerService(PlayerRepository playerRepository) {
         }
         playerRepository.save(player);
     }
+
+    public List<Player> getPlayersRankedByElo(int limit) {
+        log.info("getPlayersRankedByElo: using limit of {}", limit);
+        return playerRepository.getPlayersRankedByElo(limit);
+    }
+
+    public List<Player> getPlayersRankedByStreak(int limit) {
+        log.info("getPlayersRankedByStreak: using limit of {}", limit);
+        return playerRepository.getPlayersRankedByStreak(limit);
+    }
 }
