@@ -22,4 +22,8 @@ public record GameService(GameRepository gameRepository) {
     public List<Game> getGames() {
         return gameRepository.findAll();
     }
+
+    public List<Game> getRecentGames(int count, String player) {
+        return gameRepository.findRecentGames(count, player);
+    }
 }

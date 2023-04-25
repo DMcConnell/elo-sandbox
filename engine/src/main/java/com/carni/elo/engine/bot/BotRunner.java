@@ -48,7 +48,8 @@ public class BotRunner implements CommandLineRunner {
                         commandArgs.get(3), commandArgs.get(4));
                 case "listGames" -> botService.listGames(event.getChannel());
                 case "getLeaderboard" -> botService.getLeaderboard(event.getChannel(), commandArgs);
-                default -> event.getChannel().sendMessage("Unknown command: " + commandArgs.get(0));
+                case "showRecent" -> botService.showRecent(event.getChannel(), commandArgs);
+                //default -> event.getChannel().sendMessage("Unknown command: " + commandArgs.get(0));
             }
         });
 

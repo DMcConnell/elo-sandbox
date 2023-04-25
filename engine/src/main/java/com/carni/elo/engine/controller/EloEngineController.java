@@ -94,4 +94,12 @@ public record EloEngineController(PlayerService playerService, GameService gameS
             return null;
         }
     }
+
+    @GetMapping("/api/elo/v1/player/{player}/games")
+    public List<Game> getRecentGames(@RequestParam(name="count", defaultValue = "3") int count,
+                                     @PathVariable(name = "player") String player) {
+        log.info("controller: getRecentGames: count: {}, player: {}", count, player);
+        return gameService.getRecentGames(count, player);
+    }
+
 }
